@@ -40,7 +40,7 @@ class OverlayEvent(object):
 
 class Overlay(ui.View,OverlayEvent):
 	'''Overlay class. User adds content to content_view, or as argument'''
-	TOOLBAR_HEIGHT=36
+	TOOLBAR_HEIGHT=20
 	last_offset=[60,20]
 	def __new__(cls,content=None,parent=AppWindows.root(),*args,**kwargs):
 		if not content or not parent:
@@ -48,9 +48,9 @@ class Overlay(ui.View,OverlayEvent):
 		else:
 			return ui.View.__new__(cls, content=content,parent=parent, *args, **kwargs)
 	def __init__(self,content=None,parent=AppWindows.root(),*args,**kwargs):
-		import ui
 		if content:
 			kwargs['frame']=content.bounds.inset(-self.TOOLBAR_HEIGHT,0,0,0)
+		self.corner_radius=5
 		ui.View.__init__(self,*args,**kwargs)
 		self._pt=None
 		self.actions={}
@@ -59,7 +59,7 @@ class Overlay(ui.View,OverlayEvent):
 		# setup toolbar
 		H=self.TOOLBAR_HEIGHT
 		toolbar=ui.View(frame=(0,0,self.width,self.TOOLBAR_HEIGHT),
-							 bg_color=(.8,.8,.8,.8))
+							 bg_color=(.7,.8,.8,.8))
 		toolbar.flex='w'
 		self.add_subview(toolbar)
 		close=ui.Button(frame=(0,0,H,H))
@@ -155,9 +155,7 @@ class Overlay(ui.View,OverlayEvent):
 	def touch_moved(self,touch):
 		l=touch.location
 		p=touch.prev_location		
-
 		t=l-p
-
 		if self.resizing: 
 			#i.e touching bottom corner. update size, limiting width and height 
 			#to reasonable values
@@ -190,14 +188,11 @@ class Overlay(ui.View,OverlayEvent):
 	def attach(self):
 		self.parent.addSubview_(self)
 	def __del__(self):
-		#print('deleted overlay')
+		# print('deleted overlay')
 		#for s in self.subviews:
 			#self.remove_subview(s)
 		self.remove(self)
 def create(content):
-	if not ui:
-		return
-	else:
 		return Overlay(content)
 	
 if __name__=='__main__':

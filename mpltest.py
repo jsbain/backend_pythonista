@@ -27,8 +27,7 @@ def clear_backend(backend):
 if 'matplotlib.pyplot' in sys.modules:
 	import matplotlib
 	try:
-		#hmm.. for now, always reload
-		if True \
+		if False \
 			or matplotlib.mtime<os.path.getmtime('backend_pythonista.py') \
 			or matplotlib.mtime<os.path.getmtime('overlay.py'):
 				print('Please wait, clearing out backend')
@@ -49,18 +48,18 @@ logger=backend_pythonista.logger
 close('all')
 print ('********pylab is ready to use!:*****')
 print('**** set your interpreter to 2.7 ****')
-
-t=linspace(0,2*pi)
-y=sin(t)
-y2=sin(t)**2
-#logger.setLevel(10)
-plot(t,y,'b--',t,y**2,'r.',markersize=2)
-title('some plots')
-xlabel('theta')
-ylabel('Y')
-figure(2)
-plot(t[2:],y[2:]/t[2:],'k-.')
-title('another plot')
+if 1:
+	t=linspace(0,2*pi)
+	y=sin(t)
+	y2=sin(t)**2
+	#logger.setLevel(10)
+	plot(t,y,'b--',t,y**2,'r.',markersize=2)
+	title('some plots')
+	xlabel('theta')
+	ylabel('Y')
+	figure(2)
+	plot(t[2:],y[2:]/t[2:],'k-.')
+	title('another plot')
 #p.create_stats()
 
 

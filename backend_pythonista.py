@@ -38,7 +38,7 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 from matplotlib.transforms import Bbox
 from objc_util import *
-from overlay import create 
+import overlay
 import ui
 print('imported backend')
 rcParams['figure.figsize']=(576./160.,290./160.)
@@ -271,13 +271,15 @@ def new_figure_manager_given_figure(num, figure):
 	def event_close(overlay):
 		matplotlib.pyplot.close(figure)
 		FigureCanvasBase.close_event(canvas)
-	v=create(canvas.imgview)
+	v=overlay.create(canvas.imgview)
 	if v:
+		manager.view=v
 		v.connect(v.EVENT_RESIZE,event_resize)
 		v.connect(v.EVENT_CLOSE,event_close)
-		manager.view=v
 	else:
-		manager.view= None
+		import pdb
+		pdb.set_trace()
+		manager= None
 	return manager 
 	
 
@@ -300,13 +302,11 @@ class FigureCanvasPythonista(FigureCanvasBase):
 		FigureCanvasBase.__init__(self, figure)
 		l,b,w,h = figure.bbox.bounds
 		self.imgview=ui.ImageView(frame=(0,0,w,h))
-
 		
 	def draw(self):
 		"""
 		Draw the figure using the renderer
 		"""
-		#print('draw called')
 		dpi=self.figure.dpi
 		c.UIGraphicsBeginImageContextWithOptions(
 			CGSize(self.imgview.width,self.imgview.height), False, 0);
@@ -336,7 +336,7 @@ class FigureCanvasPythonista(FigureCanvasBase):
 		
 	def get_default_filetype(self):
 		return 'foo'
-		
+
 class FigureManagerPythonista(FigureManagerBase):
 	"""
 	Wrap everything up into a window for the pylab interface
@@ -348,7 +348,11 @@ class FigureManagerPythonista(FigureManagerBase):
 		figManager.canvas.draw()
 		if not figManager.view.on_screen:
 			figManager.view.present('sheet')
-	
+	def __del__(self):
+		if self.view:
+			self.view.close()
+			del self.view
+			del self.canvas
 ########################################################################
 #
 # Now just provide the standard names that backend.__init__ is expecting
