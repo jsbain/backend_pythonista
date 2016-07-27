@@ -27,14 +27,18 @@ def clear_backend(backend):
 if 'matplotlib.pyplot' in sys.modules:
 	import matplotlib
 	try:
-		if matplotlib.mtime<os.path.getmtime('backend_pythonista.py') \
-		or matplotlib.mtime<os.path.getmtime('overlay.py'):
-			print('Please wait, clearing out backend')
-			clear_backend('agg') # just to make sure we eliminate any backend references in mpl
-			clear_backend('module://backend_pythonista')
+		#hmm.. for now, always reload
+		if True \
+			or matplotlib.mtime<os.path.getmtime('backend_pythonista.py') \
+			or matplotlib.mtime<os.path.getmtime('overlay.py'):
+				print('Please wait, clearing out backend')
+				clear_backend('agg') # just to make sure we eliminate any backend references in mpl
+				clear_backend('module://backend_pythonista')
 	except AttributeError:
 		pass
-matplotlib.use('module://backend_pythonista')
+else:
+	import matplotlib
+	matplotlib.use('module://backend_pythonista')
 from pylab import *
 matplotlib.mtime=time.time()
 
@@ -52,10 +56,11 @@ y2=sin(t)**2
 #logger.setLevel(10)
 plot(t,y,'b--',t,y**2,'r.',markersize=2)
 title('some plots')
-xlabel('\theta')
+xlabel('theta')
 ylabel('Y')
 figure(2)
-plot(t,y/t,'k-.')
+plot(t[2:],y[2:]/t[2:],'k-.')
+title('another plot')
 #p.create_stats()
 
 
