@@ -1,6 +1,6 @@
 #!python2
 # currently only py2 supported due to strange matplotlib C bug
-import os,sys,time
+import os,sys,time,logging
 sys.path.insert(0,os.curdir)
 modules = []
 
@@ -24,10 +24,10 @@ def clear_backend(backend):
 	import matplotlib.pyplot as plt
 	
 # for development: clear out matplotlib
-if 'matplotlib.pyplot' in sys.modules:
+if 'matplotlib.pyplot' in sys.modules or 'pylab' in sys.modules:
 	import matplotlib
 	try:
-		if False \
+		if True \
 			or matplotlib.mtime<os.path.getmtime('backend_pythonista.py') \
 			or matplotlib.mtime<os.path.getmtime('overlay.py'):
 				print('Please wait, clearing out backend')
@@ -39,8 +39,9 @@ else:
 	import matplotlib
 	matplotlib.use('module://backend_pythonista')
 from pylab import *
+del matplotlib.pyplot.__name__
 matplotlib.mtime=time.time()
-
+import logging
 import backend_pythonista
 logger=backend_pythonista.logger  
 
@@ -60,6 +61,7 @@ if 1:
 	figure(2)
 	plot(t[2:],y[2:]/t[2:],'k-.')
 	title('another plot')
+logger.setLevel(logging.WARNING)
 #p.create_stats()
 
 

@@ -18,7 +18,7 @@ Naming Conventions
   * classes Upper or MixedUpperCase
 
   * varables lower or lowerUpper
-
+ 
   * functions lower or underscore_separated
 
 """
@@ -38,18 +38,21 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 from matplotlib.transforms import Bbox
 from objc_util import *
-import overlay
+import overlay,pprint
 import ui
 print('imported backend')
 rcParams['figure.figsize']=(576./160.,290./160.)
 
-import logging,pprint
+import logging
+import pprint
 logger = logging.getLogger('backend_pythonista')
+
 hdlr = logging.FileHandler('backend_pythonista.txt')
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 hdlr.setFormatter(formatter)
-logger.addHandler(hdlr) 
-logger.setLevel(logging.WARNING)
+if not logger.handlers:
+	logger.addHandler(hdlr) 
+	logger.setLevel(logging.WARNING)
 GraphicsContextPythonista=GraphicsContextBase
 UIFont=ObjCClass('UIFont')
 class RendererPythonista(RendererBase):
@@ -98,7 +101,8 @@ class RendererPythonista(RendererBase):
 	def draw_path(self, gc, path, transform, rgbFace=None):
 		if len(path.vertices) > 18980:
 			raise ValueError("The Cairo backend can not draw paths longer than 18980 points.")
-
+		logger.debug('path info')
+		logger.debug(pprint.pformat(vars(path)))
 		#print ('called',path,transform)
 		p=ui.Path()#ctx = gc.ctx
 		dashes=gc.get_dashes()
