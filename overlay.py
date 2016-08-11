@@ -13,7 +13,7 @@
 import ui
 from objc_util import *
 from math import pi
-
+from gestures import Gestures
 
 class AppWindows(object):
 	app=UIApplication.sharedApplication()
@@ -29,7 +29,12 @@ class AppWindows(object):
 	def detail(cls):
 		'''detail, a.k.a. editor panel.  dragging does not work yet until gesture recognizer is added'''
 		return cls.app.keyWindow().rootViewController().detailContainerView()
-	
+class Touch(object):
+	def __init__(self,location=ui.Point(0,0),prev_location=ui.Point(0,0),phase=0,timestamp=0):
+		self.location=location
+		self.prev_location=prev_location
+		self.phase=phase
+		self.timestamp=timestamp 
 class OverlayEvent(object):
 	'''Simple enumeration of available events'''
 	EVENT_CLOSE  =0
@@ -47,6 +52,11 @@ class Overlay(ui.View,OverlayEvent):
 			return None
 		else:
 			return ui.View.__new__(cls, content=content,parent=parent, *args, **kwargs)
+	def recognizer_should_simultaneously_recognize(self,gr,othergr):
+		#print(gr)
+		#print(othergr)
+		return False
+		
 	def __init__(self,content=None,parent=AppWindows.root(),*args,**kwargs):
 		if content:
 			kwargs['frame']=content.bounds.inset(-self.TOOLBAR_HEIGHT,0,0,0)
@@ -104,9 +114,21 @@ class Overlay(ui.View,OverlayEvent):
 			content.flex='wh'
 			self.lbl.text=content.name
 		#add to top window
-		# TODO: add to main console window instead... don't place over editor
 		self.parent = parent
 		self.attach()
+		
+		self.g=Gestures(delegate=self)
+		self.g.add_pan(self,self.handle_touch_moved)
+	def handle_touch_moved(self,data):
+		if hasattr(self,'data'):
+			dt=data.translation-self.data.translation
+		else:
+			dt=data.translation
+		self.touch_moved(Touch(data.location, data.location-dt, data.state))
+		self.data=data
+		if data.state==Gestures.ENDED:
+			self.data.translation=ui.Point(0,0)
+			self.touch_ended(Touch(data.location, data.location-dt, data.state))
 	def connect(self,event,callback):
 		try:
 			self.actions[event].append(callback)
@@ -200,7 +222,7 @@ if __name__=='__main__':
 	i.image=ui.Image.named('test:Mandrill')
 	i.name='Family resemblance'
 	i.alpha=1
-	o=Overlay(content=i)
+	o=Overlay(content=i,parent=AppWindows.detail())
 	o.content_view.border_width=2
 	i.border_width=1
 	i.content_mode=ui.CONTENT_SCALE_ASPECT_FIT
